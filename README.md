@@ -6,7 +6,7 @@
 
 启用本仓库的 GitHub Pages 后，入口为：
 
-https://mata8736-ai.github.io/jianghu-debts/
+https://mata30000.github.io/jianghu-debts/
 
 iPhone 用 Safari 打开，点顶部「单机」，下载至「离线版已备好」，再从 Safari 分享菜单选择「添加到主屏幕」。首次完整下载需要联网，之后可离线启动。
 
