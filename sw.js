@@ -1,6 +1,6 @@
 /* The complete single-player chapter is kept on this device only after every file verifies. */
 'use strict';
-const EDITION='v6-20261108',CACHE='jianghu-single-player-'+EDITION;
+const EDITION='v6-20261108-github1',CACHE='jianghu-single-player-'+EDITION;
 const FILES=[
  'index.html','style.css','mobile.css','offline.css','manifest.webmanifest',
  'compat.js','story.js','story-triggers.js','encounters.js','exploration-layouts.js',
@@ -24,8 +24,16 @@ const urlOf=request=>{
  return ALLOWED.has(url.href)?url.href:null;
 };
 async function valid(response,url){
- if(!response||!response.ok||response.type==='opaque'||response.redirected)return false;
- const type=(response.headers.get('content-type')||'').toLowerCase(),path=new URL(url).pathname;
+ if(!response||!response.ok||response.type==='opaque')return false;
+ const requested=new URL(url),indexURL=new URL('index.html',ROOT);
+ if(response.redirected){
+  // Static hosts may canonicalize index.html to this game's directory. Keep
+  // accepting only that real game document, never sign-in or asset redirects.
+  if(requested.href!==indexURL.href)return false;
+  let finalURL;try{finalURL=new URL(response.url);}catch{return false;}
+  if(finalURL.origin!==ROOT.origin||![ROOT.pathname,indexURL.pathname].includes(finalURL.pathname))return false;
+ }
+ const type=(response.headers.get('content-type')||'').toLowerCase(),path=requested.pathname;
  if(/\.(png|svg)$/.test(path))return type.startsWith('image/');
  if(path.endsWith('index.html')){if(!type.includes('text/html'))return false;const text=await response.clone().text();return text.includes('id="world"')&&text.includes('game.js');}
  if(path.endsWith('.js')){if(!/javascript|ecmascript|text\/plain/.test(type))return false;const text=await response.clone().text();return text.trim().length>10&&!/^\s*(?:<!doctype|<html)/i.test(text);}
