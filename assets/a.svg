@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400" fill="none">
+<defs>
+ <linearGradient id="robe" x1="90" y1="214" x2="234" y2="403" gradientUnits="userSpaceOnUse"><stop stop-color="#81776a"/><stop offset=".47" stop-color="#504b44"/><stop offset="1" stop-color="#302f2c"/></linearGradient>
+ <linearGradient id="skin" x1="110" y1="88" x2="205" y2="208" gradientUnits="userSpaceOnUse"><stop stop-color="#eed0a4"/><stop offset=".6" stop-color="#dcb18b"/><stop offset="1" stop-color="#ba886c"/></linearGradient>
+ <linearGradient id="hair" x1="112" y1="55" x2="205" y2="205" gradientUnits="userSpaceOnUse"><stop stop-color="#303433"/><stop offset=".4" stop-color="#171c1c"/><stop offset="1" stop-color="#0e1515"/></linearGradient>
+ <linearGradient id="scarf" x1="105" y1="203" x2="210" y2="278" gradientUnits="userSpaceOnUse"><stop stop-color="#818363"/><stop offset="1" stop-color="#3d5043"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#d8b981" stop-opacity=".2"/><stop offset="1" stop-color="#d8b981" stop-opacity="0"/></radialGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#1e251e" flood-opacity=".15"/></filter>
+ <mask id="fade"><rect width="320" height="400" fill="white"/><rect y="375" width="320" height="25" fill="url(#fadeG)"/></mask>
+ <linearGradient id="fadeG" x1="0" y1="375" x2="0" y2="400" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="black"/></linearGradient>
+</defs>
+<g mask="url(#fade)">
+<ellipse cx="163" cy="204" rx="151" ry="180" fill="url(#light)"/>
+<!-- the untidy ponytail -->
+<path d="M174 72C169 35 206 20 204 4C229 20 224 48 210 65C238 46 254 49 261 43C254 64 238 85 210 88C242 94 253 123 237 151C237 130 220 116 201 107L174 72Z" fill="url(#hair)"/>
+<path d="M191 46C202 47 211 56 213 67L202 78L180 66L191 46Z" fill="#5b382c"/><path d="M189 53L211 65M184 59L207 74" stroke="#9f6b47" stroke-width="2"/>
+<!-- silhouette and layered work clothes -->
+<path d="M123 204L86 220C58 228 37 252 32 285L15 400H302L286 289C281 253 263 232 229 222L197 206L123 204Z" fill="url(#robe)" stroke="#322d27" stroke-width="2"/>
+<path d="M103 223L77 233C60 246 56 269 50 291L39 343L70 359L87 313L109 266L103 223Z" fill="url(#skin)" stroke="#765d49" stroke-width="1.5"/><path d="M76 251L71 276L57 306M91 261L82 285" stroke="#bc9473" stroke-width="2"/>
+<path d="M226 225L245 237C261 253 264 282 270 303L282 339L252 360L232 314L214 267L226 225Z" fill="url(#skin)" stroke="#765d49" stroke-width="1.5"/><path d="M240 253L247 277L261 312" stroke="#bc9473" stroke-width="2"/>
+<path d="M118 202L156 222L195 201L219 228L186 308L151 353L102 244L118 202Z" fill="#a39a88" stroke="#4a4234" stroke-width="2"/>
+<path d="M121 209L149 249L178 274L138 348L102 245L121 209Z" fill="#68645a"/>
+<path d="M194 204L174 241L137 298L156 347L214 230L194 204Z" fill="#8e8777"/>
+<path d="M151 351L101 258L79 277L90 399H229L235 280L210 252L151 351Z" fill="#45443d"/>
+<path d="M96 280L120 347L126 399M224 288L189 348L176 399" stroke="#372e27" stroke-width="3"/>
+<path d="M69 322L87 290M51 346L71 338M250 295L263 323M223 373L239 395" stroke="#afa28b" stroke-opacity=".37" stroke-width="2"/>
+<path d="M36 372L86 361L90 382L34 395Z" fill="#42382e" stroke="#292722" stroke-width="2"/>
+<!-- throat -->
+<path d="M132 169L131 208L158 229L186 205L183 165L132 169Z" fill="url(#skin)" stroke="#765d49" stroke-width="1.5"/>
+<path d="M133 177C145 198 172 204 184 182L186 204L161 217L132 205L133 177Z" fill="#956e55" opacity=".4"/>
+<!-- ears and face -->
+<path d="M111 128C94 115 94 145 107 155L118 156L111 128ZM205 127C222 117 223 145 208 154L199 150L205 127Z" fill="#c79775" stroke="#775941" stroke-width="1.5"/>
+<path d="M112 95C123 65 190 64 205 100L206 143L194 171L163 197C157 201 152 198 146 194L119 170L110 137L112 95Z" fill="url(#skin)" stroke="#69503e" stroke-width="1.6"/>
+<path d="M115 110L118 152L128 169L124 134L128 112L115 110Z" fill="#a77c5c" opacity=".38"/>
+<path d="M193 144L185 168L163 189L190 177L202 150L203 113L196 123L193 144Z" fill="#9b6f54" opacity=".23"/>
+<!-- expression -->
+<path d="M123 127L135 120L148 122M170 122L186 118L196 122" stroke="#463329" stroke-width="3" stroke-linecap="round"/>
+<path d="M124 136C131 129 143 131 148 136C139 141 130 141 124 136Z" fill="#f2e5c9"/><path d="M169 134C177 128 188 130 193 134C187 140 176 140 169 134Z" fill="#f2e5c9"/>
+<path d="M124 136C130 129 141 131 148 136M169 134C176 128 187 130 193 134" stroke="#352d27" stroke-width="2"/>
+<ellipse cx="136" cy="136" rx="3.5" ry="5" fill="#a47734"/><ellipse cx="180" cy="134" rx="3.5" ry="5" fill="#a47734"/><circle cx="137" cy="134" r="1.2" fill="#fff0d0"/><circle cx="181" cy="132" r="1.2" fill="#fff0d0"/>
+<path d="M158 136L153 154L161 156" stroke="#a87858" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M143 170C152 174 169 171 177 164C172 176 153 182 143 170Z" fill="#9f6450"/><path d="M146 171L173 167C165 173 155 175 146 171Z" fill="#f5deba"/>
+<path d="M130 151L135 148M128 155L133 152" stroke="#b48c69" stroke-width="1.2"/>
+<!-- small face marks -->
+<path d="M125 158L130 155M127 161L132 158" stroke="#a07f65" stroke-width="1.2"/>
+<!-- falling fringe -->
+<path d="M106 135C85 108 97 72 113 63C126 40 170 42 190 54C213 64 217 93 207 124L200 143L194 102C177 109 164 102 158 88C158 104 141 115 129 117L137 92C123 108 116 117 106 135Z" fill="url(#hair)" stroke="#1d2520" stroke-width="2"/>
+<path d="M106 103C113 81 128 68 151 65M148 55C166 51 186 58 195 73M104 118C111 99 120 90 134 81M162 70C170 87 184 96 199 94M144 80L132 107" stroke="#65675c" stroke-opacity=".34" stroke-width="2" stroke-linecap="round"/>
+<path d="M103 91L96 70L113 78M124 61L127 44L138 58M194 70L213 76L205 85" fill="#242c2b"/>
+<path d="M147 56C134 48 120 53 108 64C99 72 94 87 95 99M186 54C207 60 218 76 216 94M212 69C221 76 226 92 219 108M129 76L121 103M154 76C149 91 142 100 135 104M180 91L190 103" stroke="#111b1a" stroke-width="2.3" stroke-linecap="round"/>
+<path d="M214 32C216 47 209 59 199 66M226 67C240 59 249 54 253 53M212 86C230 96 237 113 235 123" stroke="#59635c" stroke-width="1.2" opacity=".5"/>
+<!-- frayed, sleeveless vest and red cord from reference -->
+<path d="M101 218L89 225L91 239L82 244L91 252L83 263L95 268L100 282L108 270L115 271L106 251L103 234L101 218Z" fill="#666158" stroke="#343832" stroke-width="1.4"/>
+<path d="M207 214L225 222L223 238L234 243L225 253L235 263L220 266L216 280L207 267L201 269L207 248L207 214Z" fill="#56564f" stroke="#343832" stroke-width="1.4"/>
+<path d="M133 201C131 218 141 236 156 245C174 240 184 219 184 201" stroke="#a43d32" stroke-width="3" stroke-linecap="round"/>
+<path d="M156 245L155 253M154 252L160 253L162 261L155 266L150 261L154 252Z" fill="#ad7950" stroke="#7a4c38" stroke-width="1.1"/>
+<path d="M139 264L149 278L143 299L147 322M193 261L184 283L187 305M99 314L106 324L98 331L104 344" stroke="#aba18e" stroke-width="1.3" opacity=".5"/>
+<path d="M118 283L129 280L130 294L123 296L118 283ZM189 331L199 322L204 331L193 343L189 331Z" fill="#2b302d"/>
+<path d="M83 249L86 253M82 260L86 262M228 250L232 253M229 260L233 264M97 273L94 279" stroke="#b1a68f" stroke-width="1"/>
+<path d="M46 317L81 328L72 361L34 346L46 317Z" fill="#453a2f" stroke="#2d2e26" stroke-width="2"/>
+<path d="M42 328L77 340M39 338L73 350M54 321L45 349M66 325L57 354" stroke="#ae8b5c" stroke-width="1.5"/>
+<!-- stitched shoulder repair -->
+<path d="M108 330L127 326L131 349L112 354Z" fill="#8c816b" opacity=".7"/><path d="M109 334L114 332M112 344L117 342M117 351L121 348M125 330L128 334M128 342L132 344" stroke="#403b2e" stroke-width="1.2"/>
+<!-- coin pouch tied at belt -->
+<path d="M102 358C92 369 95 387 112 393C130 391 137 372 125 359L102 358Z" fill="#6b4f35" stroke="#332f27" stroke-width="1.7"/>
+<path d="M101 361L127 361M108 358L105 348M120 358L124 348" stroke="#c6a16c" stroke-width="2"/>
+<path d="M105 369C110 366 119 366 124 371M102 380L106 373M125 378L121 388" stroke="#9f7c4d" stroke-width="1.4"/>
+<!-- hand, wrapped sweet -->
+<path d="M228 345C211 333 194 330 189 334C183 340 194 345 199 347C183 342 176 344 178 350C177 355 185 357 190 360C181 358 177 360 179 365C180 371 192 375 205 381L230 378L241 358L228 345Z" fill="url(#skin)" stroke="#765942" stroke-width="1.5"/>
+<path d="M196 349L219 360M190 359L213 369M201 340L223 350" stroke="#ad8060" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M200 329L193 316L206 318L220 311L232 319L235 332L223 336L216 349L211 335L200 329Z" fill="#b98857" stroke="#654f37" stroke-width="1.3"/>
+<path d="M206 318L211 335L223 336L232 319L220 315L206 318Z" fill="#d4b27b"/><path d="M210 321L227 325M214 333L225 319" stroke="#8b6545" stroke-width="1.2"/>
+<path d="M229 340L247 350L255 376L231 391L213 379L229 340Z" fill="#4d3e30" stroke="#272925" stroke-width="2"/>
+<path d="M236 351L245 375M231 354L238 379" stroke="#9c8059" stroke-width="2"/>
+</g></svg>

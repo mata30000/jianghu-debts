@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400" fill="none">
+<defs>
+ <linearGradient id="robe" x1="74" y1="212" x2="250" y2="392" gradientUnits="userSpaceOnUse"><stop stop-color="#3b3d40"/><stop offset=".48" stop-color="#20282b"/><stop offset="1" stop-color="#101c21"/></linearGradient>
+ <linearGradient id="skin" x1="117" y1="80" x2="200" y2="203" gradientUnits="userSpaceOnUse"><stop stop-color="#f4e9df"/><stop offset=".6" stop-color="#e8d4c6"/><stop offset="1" stop-color="#c09f8e"/></linearGradient>
+ <linearGradient id="hair" x1="126" y1="49" x2="202" y2="237" gradientUnits="userSpaceOnUse"><stop stop-color="#303236"/><stop offset=".4" stop-color="#121b20"/><stop offset="1" stop-color="#0b1419"/></linearGradient>
+ <linearGradient id="fan" x1="119" y1="255" x2="266" y2="339" gradientUnits="userSpaceOnUse"><stop stop-color="#f1dfae"/><stop offset=".65" stop-color="#d5c392"/><stop offset="1" stop-color="#b6a272"/></linearGradient>
+ <linearGradient id="jade" x1="158" y1="275" x2="173" y2="302" gradientUnits="userSpaceOnUse"><stop stop-color="#bbceb0"/><stop offset=".5" stop-color="#7da996"/><stop offset="1" stop-color="#426d64"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#b58b70" stop-opacity=".18"/><stop offset="1" stop-color="#b58b70" stop-opacity="0"/></radialGradient>
+ <mask id="fade"><rect width="320" height="400" fill="white"/><rect y="375" width="320" height="25" fill="url(#fadeG)"/></mask>
+ <linearGradient id="fadeG" x1="0" y1="375" x2="0" y2="400" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="black"/></linearGradient>
+</defs>
+<g mask="url(#fade)">
+<ellipse cx="165" cy="210" rx="146" ry="181" fill="url(#light)"/>
+<!-- long gathered hair -->
+<path d="M171 71C166 52 172 33 185 24C207 28 218 46 209 64L198 81C228 89 233 123 228 153C223 192 248 220 247 259L214 267L193 221L175 149L171 71Z" fill="url(#hair)" stroke="#152728" stroke-width="2"/>
+<path d="M196 94C224 135 198 173 221 220L232 254M203 103C216 135 208 154 215 181" stroke="#728383" stroke-opacity=".25" stroke-width="2"/>
+<path d="M174 55L207 57L204 67L176 66Z" fill="#bda06c" stroke="#665c40" stroke-width="1.3"/>
+<path d="M179 55L183 46L195 47L199 56" fill="#d1b67a" stroke="#665c40" stroke-width="1.3"/>
+<path d="M169 57L217 51L219 54L170 61Z" fill="#a2b6a5"/>
+<!-- robe silhouette -->
+<path d="M125 202L88 216C58 226 37 245 29 282L9 400H308L294 283C288 250 272 231 238 219L195 203L125 202Z" fill="url(#robe)" stroke="#203c3f" stroke-width="2"/>
+<path d="M83 224L53 246L33 350L73 358L103 264L112 237L83 224Z" fill="#303338"/>
+<path d="M239 223L267 247L285 328L251 347L220 264L210 238L239 223Z" fill="#262b30"/>
+<path d="M120 203L152 218L195 202L222 229L164 351L104 233L120 203Z" fill="#d5c9b4" stroke="#345051" stroke-width="2"/>
+<path d="M122 208L153 245L185 266L148 326L110 231L122 208Z" fill="#bdb7a8"/>
+<path d="M193 204L160 247L131 293L149 332L212 225L193 204Z" fill="#d7c6ad"/>
+<path d="M104 222L155 335L160 400H89L82 278L104 222Z" fill="#252a30"/>
+<path d="M214 220L163 326L146 400H238L243 274L214 220Z" fill="#142129"/>
+<!-- collar piping and stitched cloud motifs -->
+<path d="M105 222L155 335L160 400M214 220L163 326L146 400" stroke="#9a3937" stroke-width="2.5"/>
+<path d="M67 265C77 253 84 256 81 265C89 260 95 267 88 272C79 278 72 273 67 279M58 282C68 274 75 283 69 289C83 284 86 295 78 299M246 260C235 248 229 255 234 263C221 258 218 271 229 272C239 270 246 276 248 283" stroke="#c1c09c" stroke-opacity=".3" stroke-width="1.6"/>
+<path d="M43 351L76 350L84 381L40 391Z" fill="#172025" stroke="#b95a49" stroke-width="2"/>
+<!-- embroidered dark crimson lapels -->
+<path d="M104 222L156 335L160 359L144 338L92 229L104 222Z" fill="#6e2a2c"/>
+<path d="M214 220L164 326L152 363L171 332L227 228L214 220Z" fill="#7c2c30"/>
+<path d="M99 229L149 337M220 229L170 329" stroke="#c29968" stroke-width="1.4"/>
+<path d="M104 243C116 240 120 253 113 258C127 257 128 274 121 277M210 246C196 243 192 255 201 260C186 260 186 275 192 281M130 286C142 282 146 293 137 299M184 293C173 288 169 300 176 308" stroke="#ba8460" stroke-width="1.4" opacity=".78"/>
+<path d="M70 240C80 229 91 231 97 240M62 252C75 243 83 248 82 258C95 252 100 261 92 269M48 273C62 259 74 268 66 276C83 272 85 285 74 291M243 239C251 236 263 248 264 259M250 270C239 262 233 271 241 278C230 277 227 287 238 292" stroke="#b89862" stroke-width="1.5" opacity=".53"/>
+<!-- throat -->
+<path d="M134 166L132 207L157 225L187 203L182 163L134 166Z" fill="url(#skin)" stroke="#9e7d62" stroke-width="1.5"/>
+<path d="M134 177C148 199 170 202 184 181L187 202L158 216L132 204L134 177Z" fill="#a97f64" opacity=".32"/>
+<!-- face -->
+<path d="M112 125C99 118 99 141 109 151L119 153L112 125ZM203 126C216 117 218 141 208 150L197 150L203 126Z" fill="#d3ab86" stroke="#9b785c" stroke-width="1.4"/>
+<path d="M113 96C126 70 186 68 202 98L205 141L191 173L164 195C160 198 155 198 150 195L124 173L112 144L113 96Z" fill="url(#skin)" stroke="#8c6e55" stroke-width="1.5"/>
+<path d="M118 113L121 147L133 172L124 161L113 142L113 113H118Z" fill="#b18b6c" opacity=".28"/>
+<path d="M197 133L186 167L164 190L191 172L204 143L201 114L197 133Z" fill="#aa7f62" opacity=".2"/>
+<!-- quietly amused eyes -->
+<path d="M124 123C131 118 140 117 149 121M171 120C180 116 190 117 196 121" stroke="#344039" stroke-width="2.8" stroke-linecap="round"/>
+<path d="M125 134C132 128 143 129 149 134C142 139 132 139 125 134ZM169 132C177 126 188 128 194 132C188 137 176 138 169 132Z" fill="#f9ebd4"/>
+<path d="M125 134C132 128 143 129 149 134M169 132C177 126 188 128 194 132" stroke="#2c3732" stroke-width="2"/>
+<ellipse cx="138" cy="134" rx="3.3" ry="4.6" fill="#80654c"/><ellipse cx="182" cy="132" rx="3.3" ry="4.6" fill="#80654c"/><circle cx="139" cy="132" r="1.1" fill="#fff6db"/><circle cx="183" cy="130" r="1.1" fill="#fff6db"/>
+<path d="M159 135L154 151L161 154" stroke="#b58b68" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M145 168C154 172 164 172 175 165" stroke="#a56d58" stroke-width="1.7" stroke-linecap="round"/><path d="M153 177L166 175" stroke="#c69b7d" stroke-width="1.2"/>
+<!-- narrow kohl at the outer corners -->
+<path d="M124 134L119 132M194 132L200 128" stroke="#423c3a" stroke-width="1.4" stroke-linecap="round"/>
+<!-- smooth black fringe -->
+<path d="M109 138C94 112 101 80 117 68C133 48 166 48 184 57C210 61 220 92 207 125L200 145L196 100C175 104 157 91 150 82C145 97 127 108 117 108L116 143L109 138Z" fill="url(#hair)" stroke="#142929" stroke-width="2"/>
+<path d="M113 102C117 81 130 68 149 65M155 62C170 63 189 73 197 87M152 72C166 89 180 95 196 94M144 73C133 89 124 94 116 97" stroke="#777b7f" stroke-opacity=".28" stroke-width="2" stroke-linecap="round"/>
+<path d="M110 112C106 145 111 166 120 184L127 186C117 161 119 145 119 119L110 112Z" fill="#203333"/>
+<!-- fine loose hair and fine gold chain -->
+<path d="M121 67C107 77 100 94 102 113M138 61C126 67 121 79 117 91M180 57C200 57 215 70 218 88M210 92C219 112 213 131 215 143M114 117C107 141 112 166 117 178M200 115C208 144 202 166 213 187M206 159C209 190 218 200 218 218" stroke="#111a1f" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M198 64C214 72 214 91 210 105" stroke="#c1a06a" stroke-width="1.2"/>
+<circle cx="211" cy="105" r="2.5" fill="#c4a76f"/>
+<!-- jade, worn discreetly under the lapel -->
+<path d="M165 259L164 277" stroke="#aa8e61" stroke-width="1.5"/>
+<path d="M159 277C153 284 155 298 165 303C177 300 181 285 173 278L159 277Z" fill="url(#jade)" stroke="#8b9c79" stroke-width="1.5"/>
+<path d="M165 282C171 285 172 292 164 297C159 293 159 287 165 282Z" stroke="#d1d3ad" stroke-width="1.4"/>
+<path d="M166 303L164 314M166 307L169 316" stroke="#b7a56b" stroke-width="1.5"/>
+<!-- hand holding a fan -->
+<path d="M231 333C224 327 215 326 210 329L191 348C186 353 191 359 195 357L205 349L195 364C193 370 199 373 203 370L212 359L207 376C209 383 219 380 225 371L241 351L231 333Z" fill="url(#skin)" stroke="#8c6d52" stroke-width="1.5"/>
+<path d="M217 340L205 355M224 346L213 361M229 352L220 369" stroke="#b38a68" stroke-width="1.3" stroke-linecap="round"/>
+<!-- unfolded silk fan -->
+<path d="M215 348L108 283C117 259 137 238 161 226C197 210 237 214 267 236L215 348Z" fill="url(#fan)" stroke="#756a4c" stroke-width="2"/>
+<path d="M215 348L115 276M215 348L129 255M215 348L148 237M215 348L170 225M215 348L194 219M215 348L219 220M215 348L244 226M215 348L262 238" stroke="#9b8a60" stroke-width="1.1" opacity=".75"/>
+<path d="M110 282C132 230 210 199 267 236" stroke="#5c654f" stroke-width="7"/>
+<path d="M215 347L206 370" stroke="#594d34" stroke-width="6" stroke-linecap="round"/>
+<!-- ornamental crimson lacquer and gilding on fan -->
+<path d="M110 282C132 230 210 199 267 236" stroke="#742c2d" stroke-width="7"/>
+<path d="M112 282C134 232 211 202 265 237" stroke="#c8a471" stroke-width="1.2"/>
+<path d="M127 270L132 262L138 267L132 275L127 270ZM154 243L160 239L165 245L158 250L154 243ZM189 229L198 228L200 236L191 237L189 229ZM229 229L237 232L234 239L227 236L229 229Z" fill="#a2794f" opacity=".75"/>
+<!-- a small, hand-painted bamboo on the fan -->
+<path d="M167 293L174 247M175 283L197 254M176 271L156 252" stroke="#52694e" stroke-width="2" stroke-linecap="round"/>
+<path d="M173 258C158 246 154 240 152 234C162 236 171 246 173 258ZM176 270C184 251 192 245 201 241C196 253 186 264 176 270ZM172 278C157 273 148 266 143 257C156 260 167 267 172 278ZM185 270C194 260 203 257 214 259C207 267 195 270 185 270Z" fill="#627557" opacity=".85"/>
+<path d="M240 338L259 347L269 376L244 395L223 379L240 338Z" fill="#1b232b" stroke="#9a3937" stroke-width="2"/>
+<path d="M247 351L258 376M242 354L251 381" stroke="#a05b48" stroke-width="2"/>
+</g></svg>
