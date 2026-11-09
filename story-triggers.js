@@ -18,7 +18,7 @@
       {id:'forest-companions',from:0,to:2,scene:'forest',npc:'partner',label:'进入野猪林后，和B商量接下来的路'},
       {id:'hunter-warning',from:3,to:6,scene:'forest',npc:'hunter',label:'找到林猎户，打听林中野兽的习性'},
       {id:'boar-rescue',from:7,to:12,scene:'forest',npc:'boar',label:'到野猪王面前，准备并肩应敌'},
-      {id:'cave-jade',from:13,to:15,scene:'forest',npc:'partner',anchor:'cave',radius:220,label:'探索山洞入口，再和B查看旧箱中的青玉'}
+      {id:'cave-jade',from:13,to:15,scene:'forestcave',npc:'partner',anchor:'cave:open',radius:240,label:'在洞口木箱旁和B聊聊青玉，然后出洞前往河阳镇'}
     ],
     4: [
       {id:'heyang-plan',from:0,to:2,scene:'heyang',npc:'partner',label:'到河阳镇，和B商量盘缠的事'},

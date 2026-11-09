@@ -10,6 +10,13 @@ https://mata30000.github.io/jianghu-debts/
 
 iPhone 用 Safari 打开，点顶部「单机」，下载至「离线版已备好」，再从 Safari 分享菜单选择「添加到主屏幕」。首次完整下载需要联网，之后可离线启动。
 
+## 当前版本
+
+- 首屏只优先加载当前地图和人物，其他区域进入时再加载；慢网或失败时可重试，存档保留。
+- 野猪王之后可在洞内查看西侧木箱、与B交谈，再出洞前往河阳镇；深处铜匣为后期可选奖励。
+- 扩宽道路与路边落点范围，修复转角卡住；止血草换成手绘植株。
+- 手机取消方向键，点道路行走；地点、人物状态、音乐及沉浸工具移到地图外。
+
 ## 本地部署
 
 下载并解压整个仓库，打开 `README-local.md`。Windows 双击 `start-game.bat`，Mac 可运行 `start-game.command`，或在终端执行：
@@ -31,3 +38,7 @@ python3 start_game.py
 ## GitHub Pages 设置
 
 在仓库 Settings → Pages 中选择 **Deploy from a branch**，分支选择 **main**，目录选择 **/(root)**，保存后等待发布完成。`.nojekyll` 保证静态文件直接发布，无需构建或账号服务。
+
+## 修改与发布
+
+可读源码保留在各个 `.js`、`.css` 文件中。修改后执行 `python3 prepare_web.py`，再提交、推送 `main`。脚本会生成内容指纹命名的程序和样式、更新页面入口与离线缓存版本，防止旧缓存混用新代码。GitHub Pages 仍从 `main / (root)` 自动发布。

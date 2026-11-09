@@ -1,19 +1,39 @@
 /* The complete single-player chapter is kept on this device only after every file verifies. */
 'use strict';
-const EDITION='v6-20261108-github1',CACHE='jianghu-single-player-'+EDITION;
+const EDITION='v7-20261109-fdda7fd0f8e2',CACHE='jianghu-single-player-'+EDITION;
 const FILES=[
- 'index.html','style.css','mobile.css','offline.css','manifest.webmanifest',
- 'compat.js','story.js','story-triggers.js','encounters.js','exploration-layouts.js',
- 'progression.js','adventure-content.js','map.js','combat.js','game.js','offline.js',
- 'assets/app-icon.png','assets/app-icon.svg','assets/a.svg','assets/b.svg',
- 'assets/portraits.png','assets/portrait-a.png','assets/portrait-b.png',
- 'assets/walk-a.png','assets/walk-b.png','assets/world-people.png','assets/world-enemies.png',
- 'assets/world-town.png','assets/world-forest.png','assets/world-heyang.png',
- 'assets/world-temple.png','assets/world-interiors.png','assets/world-outskirts.png',
- 'assets/world-riverwoods.png','assets/world-hilltrail.png','assets/world-forestcave.png',
- 'assets/world-wisp.png','assets/battle-forest.png','assets/battle-village.png'
+ "index.html",
+ "game-v7-0d43539f6126.css",
+ "manifest.webmanifest",
+ "app-v7-e6225b0c1180.js",
+ "assets/a.svg",
+ "assets/app-icon.png",
+ "assets/app-icon.svg",
+ "assets/b.svg",
+ "assets/battle-forest.png",
+ "assets/battle-village.png",
+ "assets/portrait-a.png",
+ "assets/portrait-b.png",
+ "assets/portraits.png",
+ "assets/walk-a.png",
+ "assets/walk-b.png",
+ "assets/world-enemies.png",
+ "assets/world-forest.png",
+ "assets/world-forestcave.png",
+ "assets/world-herb.png",
+ "assets/world-heyang.png",
+ "assets/world-hilltrail.png",
+ "assets/world-interiors.png",
+ "assets/world-outskirts.png",
+ "assets/world-people.png",
+ "assets/world-riverwoods.png",
+ "assets/world-temple.png",
+ "assets/world-town.png",
+ "assets/world-wisp.png"
 ];
 const ROOT=new URL('./',self.location.href),URLS=FILES.map(path=>new URL(path,ROOT).href),ALLOWED=new Set(URLS);
+const LEGACY_FILES=['style.css','mobile.css','offline.css','compat.js','story.js','story-triggers.js','encounters.js','exploration-layouts.js','progression.js','adventure-content.js','map.js','combat.js','game.js','offline.js'];
+const LEGACY_URLS=new Set(LEGACY_FILES.map(path=>new URL(path,ROOT).href));
 let downloadPromise=null,previousCompletePromise=null;const listeners=new Set(),clientEditions=new Map();
 const MARKER=new URL('__offline-complete__',ROOT).href;
 const urlOf=request=>{
@@ -21,7 +41,7 @@ const urlOf=request=>{
  if(url.origin!==ROOT.origin)return null;
  url.search='';url.hash='';
  if(url.pathname===ROOT.pathname)url.pathname+='index.html';
- return ALLOWED.has(url.href)?url.href:null;
+ const relative=url.pathname.startsWith(ROOT.pathname)?url.pathname.slice(ROOT.pathname.length):'';return ALLOWED.has(url.href)||LEGACY_URLS.has(url.href)||/^(?:app|game)-v\d+-[a-f0-9]{12}\.(?:js|css)$/.test(relative)?url.href:null;
 };
 async function valid(response,url){
  if(!response||!response.ok||response.type==='opaque')return false;
@@ -41,10 +61,31 @@ async function valid(response,url){
  if(path.endsWith('.webmanifest')){try{return /json|manifest/.test(type)&&typeof(await response.clone().json()).name==='string';}catch{return false;}}
  return false;
 }
+async function currentDocument(response){
+ if(!response)return false;const html=await response.clone().text(),runtime=FILES.filter(path=>/^(?:app|game)-v\d+-[a-f0-9]{12}\.(?:js|css)$/.test(path));
+ return runtime.every(path=>html.includes(path));
+}
+async function documentDependenciesCached(cache){
+ const document=await cache.match(new URL('index.html',ROOT).href);if(!document)return false;
+ const html=await document.clone().text(),dependencies=[];
+ for(const match of html.matchAll(/<(script|link)\b[^>]*>/gi)){
+  const tag=match[0],kind=match[1].toLowerCase();
+  if(kind==='link'&&!/\brel\s*=\s*["'][^"']*stylesheet/i.test(tag))continue;
+  const value=tag.match(kind==='script'?/\bsrc\s*=\s*["']([^"']+)["']/i:/\bhref\s*=\s*["']([^"']+)["']/i);if(!value)continue;
+  const url=new URL(value[1],ROOT);if(url.origin!==ROOT.origin||!url.pathname.startsWith(ROOT.pathname))return false;url.search='';url.hash='';dependencies.push(url.href);
+ }
+ return dependencies.length>0&&(await Promise.all(dependencies.map(url=>cache.match(url)))).every(Boolean);
+}
+function fetchBound(request,ms,consume=response=>response){
+ const controller=typeof AbortController==='function'?new AbortController():null;let timer;
+ const deadline=new Promise((resolve,reject)=>{timer=setTimeout(()=>{controller?.abort();const error=new Error('Network request timed out');error.name='TimeoutError';reject(error);},ms);});
+ const network=Promise.resolve().then(()=>fetch(request,controller?{signal:controller.signal}:undefined)).then(consume);
+ return Promise.race([network,deadline]).finally(()=>clearTimeout(timer));
+}
 async function status(){
- const cache=await caches.open(CACHE),present=await Promise.all(URLS.map(async url=>!!await cache.match(url)));
- const done=present.filter(Boolean).length;
- return{version:EDITION,total:FILES.length,done,ready:done===FILES.length,downloading:!!downloadPromise};
+ const cache=await caches.open(CACHE),present=await Promise.all(URLS.map(async url=>!!await cache.match(url))),done=present.filter(Boolean).length;
+ const ready=done===FILES.length&&await currentDocument(await cache.match(new URL('index.html',ROOT).href))&&await documentDependenciesCached(cache);
+ return{version:EDITION,total:FILES.length,done,ready,downloading:!!downloadPromise};
 }
 async function previousComplete(){
  if(!previousCompletePromise)previousCompletePromise=(async()=>{
@@ -52,7 +93,7 @@ async function previousComplete(){
   for(const name of names){
    const cache=await caches.open(name),marker=await cache.match(MARKER);if(!marker)continue;
    try{const data=await marker.json();if(!Array.isArray(data.urls)||!data.urls.length||data.urls.length>150)continue;
-    if((await Promise.all(data.urls.map(url=>cache.match(url)))).every(Boolean))return{name,cache};
+    if((await Promise.all(data.urls.map(url=>cache.match(url)))).every(Boolean)&&await documentDependenciesCached(cache))return{name,cache};
    }catch{}
   }
   return null;
@@ -67,11 +108,12 @@ async function download(){
  async function worker(){
   while(cursor<URLS.length){const index=cursor++,url=URLS[index],path=FILES[index];
    try{
-    const existing=await cache.match(url);if(existing&&await valid(existing,url))continue;
+    const existing=await cache.match(url);if(existing&&await valid(existing,url)&&(url!==new URL('index.html',ROOT).href||await currentDocument(existing)))continue;
     if(existing)await cache.delete(url);
-    const response=await fetch(new Request(url,{cache:'reload',credentials:'same-origin',redirect:'follow'}));
-    if(!await valid(response,url))throw new Error('File unavailable: '+path);
-    await cache.put(url,response);
+    await fetchBound(new Request(url,{cache:'reload',credentials:'same-origin',redirect:'follow'}),60000,async response=>{
+     if(!await valid(response,url)||(path==='index.html'&&!await currentDocument(response)))throw new Error('File unavailable or updating: '+path);
+     await cache.put(url,response);
+    });
     post({kind:'progress',...await status(),downloading:true,file:path});
    }catch(error){failed.push(path);post({kind:'file-error',file:path,message:explain(error)});}
   }
@@ -110,14 +152,19 @@ self.addEventListener('fetch',event=>{
     const previous=await previousComplete(),old=await previous?.cache.match(key);
     if(old){if(clientId)clientEditions.set(clientId,previous.name);return old;}
    }
-   if(cached){if(navigation&&clientId)clientEditions.set(clientId,CACHE);return cached;}
+   if(cached&&(!navigation||await documentDependenciesCached(cache))){if(navigation&&clientId)clientEditions.set(clientId,CACHE);return cached;}
    const previous=await previousComplete(),old=await previous?.cache.match(key);if(old)return old;
    return null;
   }
   try{
-   const response=await fetch(request);
-   if(await valid(response,key)){await cache.put(key,response.clone());if(navigation&&clientId)clientEditions.set(clientId,CACHE);return response;}
-   return await fallback()||response;
+   const timeout=navigation?(cached||await previousComplete()?3500:20000):40000;
+   const result=await fetchBound(request,timeout,async response=>{
+    if(!await valid(response,key))return{response,accepted:false};
+    const sameEdition=!navigation||await currentDocument(response);if(sameEdition)await cache.put(key,response.clone());
+    return{response,accepted:true,sameEdition};
+   });
+   if(result.accepted){if(navigation&&clientId){if(result.sameEdition)clientEditions.set(clientId,CACHE);else clientEditions.delete(clientId);}return result.response;}
+   return await fallback()||result.response;
   }catch(error){const saved=await fallback();if(saved)return saved;throw error;}
  })());
 });

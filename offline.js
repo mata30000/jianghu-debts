@@ -52,7 +52,7 @@
  panel.addEventListener('keyup',event=>event.stopPropagation());
  window.addEventListener('online',()=>{if(!current.downloading)refresh();});
  window.addEventListener('offline',()=>{if(!current.ready)$('offline-message').textContent='当前已断网。完整下载后，整章才能离线游玩。';});
- if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!current.downloading)refresh();});
+ if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('controllerchange',()=>{const map=window.JianghuGame?.map;if(map?.getRequiredAssetKeys?.().some(key=>map.assetState[key]!=='ready'))map.loadAssets?.();if(!current.downloading)refresh();});
  window.JianghuOffline={download,status:refresh,open,close,getState:()=>({...current})};
  update({});boot().then(reg=>{if(reg)refresh();});
 })();

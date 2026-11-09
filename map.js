@@ -1,7 +1,7 @@
 /* Original RPG exploration engine: art-backed worlds, road navigation, and searchable rooms. */
 (function(){
 'use strict';
-const T=20,RADIUS=10;
+const T=20,RADIUS=8;
 const MAP_FONT='"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const SCENES={
@@ -155,7 +155,7 @@ for(const key of ['water','bridge'])WORLD_GEOMETRY.hilltrail[key]=WORLD_GEOMETRY
 function inside(x,y,p){let hit=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const [xi,yi]=p[i],[xj,yj]=p[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)hit=!hit;}return hit;}
 const PEOPLES={a:0,b:1,kid:2,aunt:3,hunter:4,pawnshop:5,flower:6,thief:7,cart:8,fair:8,boar:9,chicken:10};
 const ENEMIES={rabbit:0,snake:1,wildboar:2,bandit:3,boarking:4,tigerboss:5,chicken:6,dog:7};
-const ASSETS={town:'assets/world-town.png',forest:'assets/world-forest.png',heyang:'assets/world-heyang.png',temple:'assets/world-temple.png',interiors:'assets/world-interiors.png',people:'assets/world-people.png',enemies:'assets/world-enemies.png',outskirts:'assets/world-outskirts.png',riverwoods:'assets/world-riverwoods.png',hilltrail:'assets/world-hilltrail.png',forestcave:'assets/world-forestcave.png',wisp:'assets/world-wisp.png',walkA:'assets/walk-a.png',walkB:'assets/walk-b.png'};
+const ASSETS={town:'assets/world-town.png',forest:'assets/world-forest.png',heyang:'assets/world-heyang.png',temple:'assets/world-temple.png',interiors:'assets/world-interiors.png',people:'assets/world-people.png',enemies:'assets/world-enemies.png',outskirts:'assets/world-outskirts.png',riverwoods:'assets/world-riverwoods.png',hilltrail:'assets/world-hilltrail.png',forestcave:'assets/world-forestcave.png',wisp:'assets/world-wisp.png',herb:'assets/world-herb.png',walkA:'assets/walk-a.png',walkB:'assets/walk-b.png'};
 function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function ellipse(c,x,y,rx,ry,color){c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fillStyle=color;c.fill();}
 function poly(c,ps,fill,stroke,width=1.5){c.beginPath();ps.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=width;c.stroke();}}
@@ -191,17 +191,19 @@ function makeGrid(id){
    if(inside(x,y,geometry.bridge))cells[gy][gx]=2;
   }
  }
+ // Give roads a forgiving one-tile verge while preserving solid scenery and banks.
+ if(!s.indoor){const geometry=WORLD_GEOMETRY[id],source=cells.map(row=>row.slice());
+  for(let gy=1;gy<rows-1;gy++)for(let gx=1;gx<cols-1;gx++){
+   if(source[gy][gx]||water[gy][gx])continue;const x=gx*T+T/2,y=gy*T+T/2;
+   if(geometry.blocks.some(p=>inside(x,y,p)))continue;
+   if([-1,0,1].some(dy=>[-1,0,1].some(dx=>source[gy+dy]?.[gx+dx]===1)))cells[gy][gx]=1;
+  }
+ }
  // Keep one contiguous navigable region. Decorative path fragments beyond trees,
  // fences or banks are never valid destinations and cannot strand a loaded save.
  let seed=null,nearest=Infinity;
  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(cells[y][x]){const d=(x*T+10-s.spawn.x)**2+(y*T+10-s.spawn.y)**2;if(d<nearest){nearest=d;seed=[x,y];}}
  if(seed){const connected=new Set(),queue=[seed];for(let i=0;i<queue.length;i++){const [x,y]=queue[i],k=y*cols+x;if(connected.has(k))continue;connected.add(k);for(const[dx,dy]of[[0,1],[0,-1],[1,0],[-1,0]]){const xx=x+dx,yy=y+dy;if(cells[yy]?.[xx]&&!connected.has(yy*cols+xx))queue.push([xx,yy]);}}for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(cells[y][x]&&!connected.has(y*cols+x))cells[y][x]=0;}
- // Radius checks can leave a tiny isolated center at a diagonal corner. Remove
- // those centers too so every legal touch destination has a route from the spawn.
- const legal=(x,y)=>x>=0&&y>=0&&x+1<cols&&y+1<rows&&cells[y][x]&&cells[y][x+1]&&cells[y+1][x];
- let center=null,centerDist=Infinity;
- for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(legal(x,y)){const d=(x*T+10-s.spawn.x)**2+(y*T+10-s.spawn.y)**2;if(d<centerDist){centerDist=d;center=[x,y];}}
- if(center){const reached=new Set(),queue=[center];for(let i=0;i<queue.length;i++){const [x,y]=queue[i],k=y*cols+x;if(reached.has(k))continue;reached.add(k);for(const[dx,dy]of[[0,1],[0,-1],[1,0],[-1,0]]){const xx=x+dx,yy=y+dy;if(legal(xx,yy)&&!reached.has(yy*cols+xx))queue.push([xx,yy]);}}const isolated=[];for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(legal(x,y)&&!reached.has(y*cols+x))isolated.push([x,y]);for(const [x,y]of isolated)cells[y][x]=0;}
  return{tile:T,cols,rows,width:s.width,height:s.height,cells,water};
 }
 function drawFallback(c,id,nav){
@@ -254,16 +256,50 @@ class RPGMap{
  constructor(canvas,options={}){
   this.canvas=canvas;this.ctx=canvas.getContext('2d');this.onInteract=options.onInteract||(()=>{});this.onMove=options.onMove||(()=>{});this.onBlocked=options.onBlocked||(()=>{});
   this.player={x:850,y:1380};this.follower={x:850,y:1420};this.companion=false;this.paused=false;this.visited=new Set();this.searched=new Set();this.hidden=new Set();this.worldEntities=new Map();this.staticHotspots=[];this.storyTarget=null;this.caveState={open:false,sealed:false,unlocked:false};this.spawnCache=new Map();
-  this.assets={};this.assetState={};this.spriteBounds={};this.enemyBounds={};this.wispBounds=null;this.walkBounds={};this.path=[];this.pending=null;this.time=0;this.last=0;this.lastInteract=-1000;this.facing={x:0,y:1};this.followerFacing={x:0,y:1};this.walkDistance=0;this.followerDistance=0;this.trail=[];this.failAt=-1000;
+  this.assets={};this.assetState={};this.spriteBounds={};this.enemyBounds={};this.wispBounds=null;this.walkBounds={};this.assetQueue=[];this.assetRequests=new Map();this.assetSequence=0;this.assetPumpScheduled=false;this.assetDisposed=false;this.path=[];this.pending=null;this.time=0;this.last=0;this.lastInteract=-1000;this.facing={x:0,y:1};this.followerFacing={x:0,y:1};this.walkDistance=0;this.followerDistance=0;this.trail=[];this.failAt=-1000;
   this.background=document.createElement('canvas');this.bctx=this.background.getContext('2d');this.pointerHandler=e=>this.pointer(e);canvas.addEventListener('pointerdown',this.pointerHandler);canvas.setAttribute('role','img');canvas.style.touchAction='none';this.setScene('town');this.resize();this.resizeHandler=()=>this.resize();window.addEventListener?.('resize',this.resizeHandler);
-  if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(this.resizeHandler);this.observer.observe(canvas);}this.loadAssets();this.tick=this.tick.bind(this);this.frame=requestAnimationFrame(this.tick);
+  if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(this.resizeHandler);this.observer.observe(canvas);}this.tick=this.tick.bind(this);this.frame=requestAnimationFrame(this.tick);
  }
  get hotspots(){
   const all=new Map(this.staticHotspots.map(h=>[h.id,h]));for(const h of this.worldEntities.values())all.set(h.id,h);
   if(this.companion)all.set('partner',{id:'partner',name:'B',type:'npc',kind:'b',x:this.follower.x,y:this.follower.y,companion:true});
   return [...all.values()].filter(h=>!this.hidden.has(h.id));
  }
- loadAssets(){if(typeof Image==='undefined')return;for(const [id,path]of Object.entries(ASSETS)){const img=new Image();this.assetState[id]='loading';img.onload=()=>{this.assets[id]=img;this.assetState[id]='ready';if(id==='people')this.measureSprites(img);else if(id==='enemies')this.measureEnemySprites(img);else if(id==='walkA'||id==='walkB')this.measureWalkSprites(id,img);else if(id==='wisp')this.measureWispSprite(img);else this.refreshBackground();};img.onerror=()=>{this.assetState[id]='unavailable';};img.src=path;}}
+ getRequiredAssetKeys(){const s=SCENES[this.scene];return[s.asset||(s.indoor?'interiors':this.scene),'people'];}
+ getSceneAssetKeys(){const keys=[...this.getRequiredAssetKeys(),'walkA'];if(this.companion)keys.push('walkB');if(!SCENES[this.scene].indoor){keys.push('herb');if(this.scene!=='town'&&this.scene!=='heyang')keys.push('enemies');if(this.scene==='temple')keys.push('wisp');}return [...new Set(keys)];}
+ loadAssets(){this.ensureSceneAssets(true);}
+ ensureSceneAssets(retry=false){
+  if(this.assetDisposed||typeof Image==='undefined')return;
+  const wanted=this.getSceneAssetKeys(),required=this.getRequiredAssetKeys();
+  this.assetQueue=this.assetQueue.filter(key=>wanted.includes(key));
+  // Scene changes release old downloads so the new background can start at once.
+  for(const[key,request]of this.assetRequests)if(!wanted.includes(key)||retry||(!required.includes(key)&&required.some(id=>this.assetState[id]!=='ready')))request.cancel();
+  for(const key of wanted){if(this.assetState[key]==='ready'||this.assetRequests.has(key))continue;if(this.assetState[key]==='unavailable'&&!retry)continue;this.assetState[key]='queued';}
+  this.assetQueue=wanted.filter(key=>this.assetState[key]==='queued');this.pumpAssetQueue();
+ }
+ scheduleAssetPump(){if(this.assetPumpScheduled||this.assetDisposed)return;this.assetPumpScheduled=true;Promise.resolve().then(()=>{this.assetPumpScheduled=false;this.pumpAssetQueue();});}
+ pumpAssetQueue(){
+  if(this.assetDisposed)return;const required=this.getRequiredAssetKeys();
+  this.assetQueue.sort((a,b)=>(required.includes(a)?0:1)-(required.includes(b)?0:1));
+  while(this.assetRequests.size<2&&this.assetQueue.length){const id=this.assetQueue.shift();if(this.assetState[id]!=='queued'||this.assets[id])continue;
+   // Optional sheets wait until both pieces needed to enter the map have settled.
+   if(!required.includes(id)&&required.some(key=>['queued','loading'].includes(this.assetState[key]))){this.assetQueue.unshift(id);break;}
+   this.startAssetRequest(id);
+  }
+ }
+ startAssetRequest(id){
+  const img=new Image(),serial=++this.assetSequence;let settled=false,timer;
+  const finish=(okay,canceled=false)=>{
+   if(settled)return;settled=true;clearTimeout(timer);img.onload=null;img.onerror=null;const active=this.assetRequests.get(id);if(!active||active.serial!==serial)return;this.assetRequests.delete(id);
+   if(okay){this.assets[id]=img;this.assetState[id]='ready';try{if(id==='people')this.measureSprites(img);else if(id==='enemies')this.measureEnemySprites(img);else if(id==='walkA'||id==='walkB')this.measureWalkSprites(id,img);else if(id==='wisp')this.measureWispSprite(img);}catch{}const current=this.getRequiredAssetKeys()[0];if(id===current)this.refreshBackground();}
+   else{this.assetState[id]=canceled?'idle':'unavailable';try{img.src='';}catch{}}
+   this.scheduleAssetPump();
+  };
+  this.assetState[id]='loading';this.assetRequests.set(id,{serial,image:img,cancel:()=>finish(false,true)});
+  img.onload=()=>finish(true);img.onerror=()=>finish(false);
+  timer=setTimeout(()=>finish(false),45000);
+  try{img.decoding='async';img.fetchPriority=this.getRequiredAssetKeys().includes(id)?'high':'low';img.src=ASSETS[id];}catch{finish(false);}
+ }
  measureWispSprite(img){
   try{const temp=document.createElement('canvas');temp.width=img.naturalWidth||img.width;temp.height=img.naturalHeight||img.height;const c=temp.getContext('2d');c.drawImage(img,0,0);const data=c.getImageData(0,0,temp.width,temp.height).data;let left=temp.width,top=temp.height,right=0,bottom=0;
    for(let y=0;y<temp.height;y+=2)for(let x=0;x<temp.width;x+=2)if(data[(y*temp.width+x)*4+3]>64){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
@@ -286,11 +322,11 @@ class RPGMap{
    this.walkBounds[id]={frames,maxHeight:maxHeight||ch*.85};
   }catch{}
  }
- refreshBackground(){const s=SCENES[this.scene];this.background.width=s.width;this.background.height=s.height;const c=this.bctx;c.imageSmoothingEnabled=true;const img=this.assets[s.asset||(s.indoor?'interiors':s.asset)];if(img){if(s.indoor&&!s.asset){const iw=(img.naturalWidth||img.width)/3,ih=(img.naturalHeight||img.height)/2;c.drawImage(img,s.atlas%3*iw,Math.floor(s.atlas/3)*ih,iw,ih,0,0,s.width,s.height);}else c.drawImage(img,0,0,s.width,s.height);}else drawFallback(c,this.scene,this.nav);}
+ refreshBackground(){const s=SCENES[this.scene];if(this.background.width!==s.width)this.background.width=s.width;if(this.background.height!==s.height)this.background.height=s.height;const c=this.bctx;c.imageSmoothingEnabled=true;const img=this.assets[s.asset||(s.indoor?'interiors':s.asset)];if(img){if(s.indoor&&!s.asset){const iw=(img.naturalWidth||img.width)/3,ih=(img.naturalHeight||img.height)/2;c.drawImage(img,s.atlas%3*iw,Math.floor(s.atlas/3)*ih,iw,ih,0,0,s.width,s.height);}else c.drawImage(img,0,0,s.width,s.height);}else drawFallback(c,this.scene,this.nav);}
  setScene(id){
   this.scene=SCENES[id]?id:'town';const s=SCENES[this.scene];this.nav=makeGrid(this.scene);this.worldEntities=new Map();this.staticHotspots=SPOTS[this.scene].map(h=>({...h,...(h.returnPos?{returnPos:{...h.returnPos}}:{})}));
   for(const h of this.staticHotspots)if(h.type==='exit-area'){const p=this.nearestRoad(h);h.x=p.x;h.y=p.y;}
-  this.path=[];this.pending=null;this.player=this.nearestRoad(s.spawn);this.follower=this.nearestRoad({x:this.player.x,y:this.player.y+50});this.trail=[];this.walkDistance=0;this.followerDistance=0;this.refreshBackground();this.canvas.setAttribute('aria-label',s.name+'，'+(s.indoor?'观察室内陈设并点击调查；从门口离开。':'沿道路和木桥移动；点击人物交谈、采集草药或调查道路出口。'));this.updateView();this.onMove({...this.player});
+  this.path=[];this.pending=null;this.player=this.nearestRoad(s.spawn);this.follower=this.nearestRoad({x:this.player.x,y:this.player.y+50});this.trail=[];this.walkDistance=0;this.followerDistance=0;this.refreshBackground();this.canvas.setAttribute('aria-label',s.name+'，'+(s.indoor?'观察室内陈设并点击调查；从门口离开。':'沿道路和木桥移动；点击人物交谈、采集草药或调查道路出口。'));this.updateView();this.onMove({...this.player});this.ensureSceneAssets();
  }
  getSceneInfo(){const s=SCENES[this.scene];return{id:this.scene,...s,isIndoor:!!s.indoor,parentScene:s.outdoor||null,spawn:{...s.spawn},returnPos:s.returnPos?{...s.returnPos}:null};}
  getSceneSize(){const s=SCENES[this.scene];return{width:s.width,height:s.height};}
@@ -314,6 +350,12 @@ class RPGMap{
  }
  isWalkable(x,y,r=RADIUS){const n=this.nav;if(!Number.isFinite(x)||!Number.isFinite(y)||x-r<0||y-r<0||x+r>=n.width||y+r>=n.height)return false;for(const [dx,dy]of[[0,0],[-r,0],[r,0],[0,-r],[0,r],[-r*.71,-r*.71],[r*.71,-r*.71],[-r*.71,r*.71],[r*.71,r*.71]])if(!n.cells[Math.floor((y+dy)/T)]?.[Math.floor((x+dx)/T)])return false;return true;}
  nearestRoad(p){if(this.isWalkable(p.x,p.y))return{x:p.x,y:p.y};let best=null,dist=Infinity;for(let y=0;y<this.nav.rows;y++)for(let x=0;x<this.nav.cols;x++)if(this.nav.cells[y][x]){const q={x:x*T+T/2,y:y*T+T/2},d=(q.x-p.x)**2+(q.y-p.y)**2;if(d<dist&&this.isWalkable(q.x,q.y)){best=q;dist=d;}}return best||{...SCENES[this.scene].spawn};}
+ snapDestination(p,radius=64){
+  if(this.isWalkable(p.x,p.y))return{x:p.x,y:p.y};const row=Math.floor(p.y/T),col=Math.floor(p.x/T);if(this.nav.water[row]?.[col]&&this.nav.cells[row]?.[col]!==2)return null;
+  let best=null,distance=Infinity;const reach=Math.ceil(radius/T);
+  for(let dy=-reach;dy<=reach;dy++)for(let dx=-reach;dx<=reach;dx++){const q={x:(col+dx)*T+T/2,y:(row+dy)*T+T/2},d=Math.hypot(q.x-p.x,q.y-p.y);if(d<=radius&&d<distance&&this.isWalkable(q.x,q.y)){best=q;distance=d;}}
+  return best;
+ }
  findPath(from,to){
   if(!this.isWalkable(to.x,to.y))return[];const n=this.nav,start=this.nearestRoad(from),ax=Math.floor(start.x/T),ay=Math.floor(start.y/T),bx=Math.floor(to.x/T),by=Math.floor(to.y/T),cols=n.cols,key=(x,y)=>y*cols+x,queue=[{x:ax,y:ay}],prev=new Map([[key(ax,ay),null]]);let head=0;
   while(head<queue.length){const q=queue[head++];if(q.x===bx&&q.y===by)break;for(const[dx,dy]of[[0,-1],[1,0],[0,1],[-1,0]]){const x=q.x+dx,y=q.y+dy,k=key(x,y);if(x<0||x>=n.cols||y<0||y>=n.rows||!n.cells[y][x]||prev.has(k)||!this.isWalkable(x*T+10,y*T+10))continue;prev.set(k,q);queue.push({x,y});}}
@@ -321,7 +363,7 @@ class RPGMap{
  }
  setPlayer(x,y){const spawn=SCENES[this.scene].spawn;this.player=this.nearestRoad({x:Number.isFinite(x)?x:spawn.x,y:Number.isFinite(y)?y:spawn.y});this.follower=this.nearestRoad({x:this.player.x,y:this.player.y+50});this.path=[];this.pending=null;this.trail=[];this.updateView();this.onMove({...this.player});}
  getPlayer(){return{...this.player};}getView(){return{...this.view};}
- setPaused(v){this.paused=!!v;if(v){this.path=[];this.pending=null;}}setCompanion(v){this.companion=!!v;}markVisited(id){this.visited.add(this.scene+':'+id);}
+ setPaused(v){this.paused=!!v;if(v){this.path=[];this.pending=null;}}setCompanion(v){const changed=this.companion!==!!v;this.companion=!!v;if(changed)this.ensureSceneAssets();}markVisited(id){this.visited.add(this.scene+':'+id);}
  getNearby(){let best=Infinity,nearest=null;for(const h of this.hotspots){if(h.anchorOnly||h.concealed||h.type==='search')continue;const d=Math.hypot(h.x-this.player.x,h.y-this.player.y);if(d>=125)continue;const score=d+(h.companion?80:0)-(this.isStorySpot(h)?110:0);if(score<best){best=score;nearest=h;}}return nearest;}
  interactNearest(){const h=this.getNearby();if(h&&!this.paused){this.trigger(h);return h;}return null;}
  getInspectableNearby(){
@@ -353,8 +395,8 @@ class RPGMap{
     // larger supporting furniture. Their floor anchor is never a hit target.
     if(onObject){const area=b?b[2]*b[3]:10000,score=-20000+Math.sqrt(area)/100;if(score<best){hit=h;best=score;}}continue;
    }
-   const b=this.getNameplateRect(h),onLabel=this.isNameplateVisible(h)&&x>=b.x&&x<=b.x+b.width&&y>=b.y&&y<=b.y+b.height;const object=['door','exit','exit-area','gather','drop','camp','chest'].includes(h.type),dx=x-h.x,dy=y-(h.y-(object?14:50)),d=Math.hypot(dx,dy*.65);const physical=h.type==='chest'&&Array.isArray(h.bounds)&&x>=h.bounds[0]&&x<=h.bounds[0]+h.bounds[2]&&y>=h.bounds[1]&&y<=h.bounds[1]+h.bounds[3];const score=physical?-15000:onLabel?Math.hypot(x-(b.x+b.width/2),y-(b.y+b.height/2))-(this.isStorySpot(h)?30000:10000):d;if((physical||onLabel||d<(object?42:45))&&score<best){hit=h;best=score;}}
-  if(hit){if(Math.hypot(this.player.x-hit.x,this.player.y-hit.y)<125){this.trigger(hit);return;}const dest=this.approach(hit);this.pending=hit;this.path=dest?this.findPath(this.player,dest):[];if(!this.path.length){this.pending=null;this.blocked(x,y);}}else if(this.isWalkable(x,y)){this.pending=null;this.path=this.findPath(this.player,{x,y});if(!this.path.length)this.blocked(x,y);}else{this.path=[];this.pending=null;this.blocked(x,y);}}
+   const b=this.getNameplateRect(h),onLabel=this.isNameplateVisible(h)&&x>=b.x&&x<=b.x+b.width&&y>=b.y&&y<=b.y+b.height;const object=['door','exit','exit-area','gather','drop','camp','chest'].includes(h.type),dx=x-h.x,dy=y-(h.y-(object?14:50)),d=Math.hypot(dx,dy*.65);const physical=h.type==='chest'&&Array.isArray(h.bounds)&&x>=h.bounds[0]&&x<=h.bounds[0]+h.bounds[2]&&y>=h.bounds[1]&&y<=h.bounds[1]+h.bounds[3];const opened=h.id==='cave:open'?this.caveState.open:h.id==='cave:sealed'?this.caveState.sealed:false;const score=physical?(opened?-15000:-40000):onLabel?Math.hypot(x-(b.x+b.width/2),y-(b.y+b.height/2))-(this.isStorySpot(h)?30000:10000):d;if((physical||onLabel||d<(object?42:45))&&score<best){hit=h;best=score;}}
+  if(hit){if(Math.hypot(this.player.x-hit.x,this.player.y-hit.y)<125){this.trigger(hit);return;}const dest=this.approach(hit);this.pending=hit;this.path=dest?this.findPath(this.player,dest):[];if(!this.path.length){this.pending=null;this.blocked(x,y);}}else{const dest=this.snapDestination({x,y});this.pending=null;this.path=dest?this.findPath(this.player,dest):[];if(!this.path.length)this.blocked(x,y);}}
  blocked(x,y){this.failAt=performance.now();this.failPoint={x,y};this.onBlocked(SCENES[this.scene].indoor?'家具挡住了去路，请从旁边绕行。':'只能沿道路和桥梁行走。');}
  resize(){const r=this.canvas.getBoundingClientRect?.()||{width:1200,height:780};this.cssWidth=Math.max(1,r.width||1200);this.cssHeight=Math.max(1,r.height||780);this.dpr=Math.min(window.devicePixelRatio||1,2);const w=Math.round(this.cssWidth*this.dpr),h=Math.round(this.cssHeight*this.dpr);if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}this.ctx.imageSmoothingEnabled=true;this.updateView();}
  updateView(){const s=SCENES[this.scene],cw=this.cssWidth||1200,ch=this.cssHeight||780,ratio=cw/ch;let vw=cw<700?650:(s.indoor?1200:1500),vh=vw/ratio;if(vh>s.height){vh=s.height;vw=vh*ratio;}if(vw>s.width){vw=s.width;vh=vw/ratio;}const scale=Math.min(cw/vw,ch/vh);this.view={x:clamp(this.player.x-vw/2,0,s.width-vw),y:clamp(this.player.y-vh*.61,0,s.height-vh),width:vw,height:vh,scale,cssWidth:cw,cssHeight:ch};}
@@ -364,7 +406,7 @@ class RPGMap{
    if(h.wander?.length){const p=h.wander[0],dx=p.x-h.x,dy=p.y-h.y,d=Math.hypot(dx,dy);if(d<1){h.wander.shift();continue;}const amount=Math.min(d,dt*(h.kind==='rabbit'?35:24)),x=h.x+dx/d*amount,y=h.y+dy/d*amount;if(this.isWalkable(x,y)){h.x=x;h.y=y;h.facing={x:dx,y:dy};h.walkDistance=(h.walkDistance||0)+amount;h.walking=true;}else h.wander=[];}
   }
  }
- tick(now){const dt=Math.min(.05,Math.max(0,(now-(this.last||now))/1000));this.last=now;this.time+=dt;this.wander(dt);if(!this.paused&&this.path.length){const dest=this.path[0],dx=dest.x-this.player.x,dy=dest.y-this.player.y,d=Math.hypot(dx,dy);if(d<1)this.path.shift();else{const amount=Math.min(d,dt*190);if(!this.advance(dx/d*amount,dy/d*amount)){this.path=[];this.pending=null;}}if(!this.path.length&&this.pending&&Math.hypot(this.player.x-this.pending.x,this.player.y-this.pending.y)<135)this.trigger(this.pending);}this.draw();this.frame=requestAnimationFrame(this.tick);}
+ tick(now){const dt=Math.min(.05,Math.max(0,(now-(this.last||now))/1000));this.last=now;this.time+=dt;this.wander(dt);if(!this.paused&&this.path.length){const dest=this.path[0],dx=dest.x-this.player.x,dy=dest.y-this.player.y,d=Math.hypot(dx,dy);if(d<.1){if(d)this.advance(dx,dy);this.path.shift();}else{const amount=Math.min(d,dt*190);if(!this.advance(dx/d*amount,dy/d*amount)){this.path=[];this.pending=null;}}if(!this.path.length&&this.pending&&Math.hypot(this.player.x-this.pending.x,this.player.y-this.pending.y)<135)this.trigger(this.pending);}this.draw();this.frame=requestAnimationFrame(this.tick);}
  drawEnemySprite(c,x,y,kind,walking=false,dir={x:0,y:1},distance=0){
   const img=this.assets.enemies,id=ENEMIES[kind];if(!img||!Number.isInteger(id))return false;
   const cw=(img.naturalWidth||img.width)/4,ch=(img.naturalHeight||img.height)/2,b=this.enemyBounds[id]||{x:id%4*cw,y:Math.floor(id/4)*ch,width:cw,height:ch},heights={rabbit:72,snake:51,wildboar:97,bandit:120,boarking:128,tigerboss:135,chicken:66,dog:83},height=heights[kind]||100,width=b.width/b.height*height,hop=walking&&kind==='rabbit'?Math.abs(Math.sin(distance/8))*3:walking?Math.abs(Math.sin(distance/14)):0;
@@ -398,7 +440,7 @@ class RPGMap{
    if(h.kind==='rabbit'||h.kind==='snake')shadow(c,h.x,h.y,20);
    else this.drawSprite(c,h.x,h.y,h.kind==='bandit'?'thief':'boar',t,!!h.walking,h.facing||{x:0,y:1},h.walkDistance||0);return;
   }
-  if(h.type==='gather'){object(c,{...h,id:'herb'},t,false);return;}
+  if(h.type==='gather'){const img=this.assets.herb;if(img){const height=52,width=907/548*height;shadow(c,h.x,h.y,18);c.drawImage(img,184,356,907,548,h.x-width/2,h.y-height,width,height);}return;}
   if(h.type==='drop'){shadow(c,h.x,h.y,17);poly(c,[[h.x-16,h.y],[h.x-18,h.y-20],[h.x-8,h.y-33],[h.x+5,h.y-35],[h.x+18,h.y-21],[h.x+16,h.y]],'#aa8450','#635039',2);line(c,[[h.x-10,h.y-27],[h.x+12,h.y-27]],'#d8bd78',3);ellipse(c,h.x,h.y-13,6,7,'#d2b568');const glow=.5+Math.sin(t*3+h.x)*.2;ellipse(c,h.x+21,h.y-34,2,2,'rgba(255,230,157,'+glow+')');return;}
   const kind=h.kind||h.id;this.drawSprite(c,h.x,h.y,PEOPLES[kind]!==undefined?kind:'hunter',t,false,this.facing);
  }
@@ -417,7 +459,7 @@ class RPGMap{
   }
   if(performance.now()-this.failAt<700&&this.failPoint){const p=this.failPoint;line(c,[[p.x-8,p.y-8],[p.x+8,p.y+8]],'#b76c54',2);line(c,[[p.x+8,p.y-8],[p.x-8,p.y+8]],'#b76c54',2);}c.restore();c.setTransform(1,0,0,1,0,0);
  }
- destroy(){cancelAnimationFrame(this.frame);this.canvas.removeEventListener('pointerdown',this.pointerHandler);window.removeEventListener?.('resize',this.resizeHandler);this.observer?.disconnect();}
+ destroy(){this.assetDisposed=true;for(const request of this.assetRequests.values())request.cancel();this.assetQueue=[];cancelAnimationFrame(this.frame);this.canvas.removeEventListener('pointerdown',this.pointerHandler);window.removeEventListener?.('resize',this.resizeHandler);this.observer?.disconnect();}
 }
 window.RPGMap=RPGMap;
 })();
