@@ -1,6 +1,6 @@
 /* The complete single-player chapter is kept on this device only after every file verifies. */
 'use strict';
-const EDITION='v8-20261109-8997e4e18023',CACHE='jianghu-single-player-'+EDITION;
+const EDITION='v8-20261109-a1f8d6cdfd36',CACHE='jianghu-single-player-'+EDITION;
 const FILES=[
  "index.html",
  "game-v8-e2cfe0c324b2.css",
@@ -33,7 +33,9 @@ const FILES=[
 ];
 const ROOT=new URL('./',self.location.href),URLS=FILES.map(path=>new URL(path,ROOT).href),ALLOWED=new Set(URLS);
 const LEGACY_FILES=['style.css','mobile.css','offline.css','compat.js','story.js','story-triggers.js','encounters.js','exploration-layouts.js','progression.js','adventure-content.js','map.js','combat.js','game.js','offline.js'];
-const LEGACY_URLS=new Set(LEGACY_FILES.map(path=>new URL(path,ROOT).href));
+// A complete earlier edition still refers to the original PNG artwork. Keep
+// those known local paths routable while an interrupted WebP update falls back.
+const LEGACY_URLS=new Set([...LEGACY_FILES,...FILES.filter(path=>path.endsWith('.webp')).map(path=>path.replace(/\.webp$/,'.png'))].map(path=>new URL(path,ROOT).href));
 let downloadPromise=null,previousCompletePromise=null;const listeners=new Set(),clientEditions=new Map();
 const MARKER=new URL('__offline-complete__',ROOT).href;
 const urlOf=request=>{
