@@ -5,13 +5,13 @@ import json
 import re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
-SCRIPTS=['compat.js','story.js','adventure-content.js','progression.js','story-triggers.js','encounters.js','exploration-layouts.js','map.js','combat.js','game.js','offline.js']
-STYLES=['style.css','mobile.css','offline.css']
-js='/* Jianghu iPhone release v7. Readable modules are retained in the repository. */\n'+ '\n;\n'.join((ROOT/name).read_text() for name in SCRIPTS)+'\n;window.dispatchEvent(new Event("jianghu-boot-ready"));\n'
-css='/* Jianghu iPhone release v7 */\n'+'\n'.join((ROOT/name).read_text() for name in STYLES)
+SCRIPTS=['compat.js','story.js','adventure-content.js','progression.js','story-triggers.js','encounters.js','exploration-layouts.js','scene-previews.js','map.js','combat.js','chase.js','game.js','offline.js']
+STYLES=['style.css','mobile.css','offline.css','polish.css','chase.css']
+js='/* Jianghu iPhone release v8. Readable modules are retained in the repository. */\n'+ '\n;\n'.join((ROOT/name).read_text() for name in SCRIPTS)+'\n;window.dispatchEvent(new Event("jianghu-boot-ready"));\n'
+css='/* Jianghu iPhone release v8 */\n'+'\n'.join((ROOT/name).read_text() for name in STYLES)
 short=lambda value:hashlib.sha256(value.encode()).hexdigest()[:12]
-app='app-v7-'+short(js)+'.js';style='game-v7-'+short(css)+'.css'
-for pattern in ['app-v7-*.js','game-v7-*.css']:
+app='app-v8-'+short(js)+'.js';style='game-v8-'+short(css)+'.css'
+for pattern in ['app-v7-*.js','game-v7-*.css','app-v8-*.js','game-v8-*.css']:
  for path in ROOT.glob(pattern):path.unlink()
 (ROOT/app).write_text(js);(ROOT/style).write_text(css)
 html=(ROOT/'index.html').read_text()
@@ -36,16 +36,16 @@ bootstrap=r'''<!-- jianghu-bootstrap-start -->
 <!-- jianghu-bootstrap-end -->'''
 bootstrap=bootstrap.replace('APP_FILE',json.dumps(app)).replace('APP_SRC',app)
 html=html.replace('</body>',bootstrap+'\n</body>');html=re.sub(r'\n{3,}','\n\n',html);(ROOT/'index.html').write_text(html)
-assets=sorted(str(p.relative_to(ROOT)) for p in (ROOT/'assets').iterdir() if p.suffix.lower() in ['.png','.svg'])
+assets=sorted(str(p.relative_to(ROOT)) for p in (ROOT/'assets').iterdir() if p.suffix.lower() in ['.webp','.svg'] or p.name=='app-icon.png')
 files=['index.html',style,'manifest.webmanifest',app]+assets
 worker=(ROOT/'sw.js').read_text()
 worker=re.sub(r"const EDITION='[^']+',CACHE='jianghu-single-player-'\+EDITION;",'__EDITION__',worker)
 worker=re.sub(r'const FILES=\[[\s\S]*?\];','__FILES__',worker,count=1)
 payload=hashlib.sha256((html+js+css+worker).encode())
 for name in assets:payload.update((ROOT/name).read_bytes())
-edition='v7-20261109-'+payload.hexdigest()[:12]
+edition='v8-20261109-'+payload.hexdigest()[:12]
 sw=(ROOT/'sw.js').read_text()
 sw=re.sub(r"const EDITION='[^']+',CACHE='jianghu-single-player-'\+EDITION;", "const EDITION='"+edition+"',CACHE='jianghu-single-player-'+EDITION;",sw)
 sw=re.sub(r'const FILES=\[[\s\S]*?\];','const FILES='+json.dumps(files,ensure_ascii=False,indent=1)+';',sw,count=1)
 (ROOT/'sw.js').write_text(sw)
-print(json.dumps({'edition':edition,'app':app,'style':style,'offline_files':len(files),'first_screen_images':['world-town.png','world-people.png']},ensure_ascii=False))
+print(json.dumps({'edition':edition,'app':app,'style':style,'offline_files':len(files),'first_screen_images':['world-town.webp','world-people.webp']},ensure_ascii=False))

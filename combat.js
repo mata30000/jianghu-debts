@@ -8,8 +8,8 @@
   .battle-painted .battle-kicker{font-size:9px!important;letter-spacing:3px;color:#847358}
   .battle-painted .battle-round{text-align:right;font-size:12px;color:#786747;white-space:nowrap}
   .battle-painted .battle-round small{display:block;margin-top:4px;font-size:9px;color:#97876b;letter-spacing:1px}
-  .battle-painted .battle-arena{height:326px!important;position:relative;overflow:hidden;isolation:isolate;background-color:#818b61;background-image:url('assets/battle-forest.png'),url('assets/world-forest.png');background-repeat:no-repeat;background-size:cover;background-position:center 12%;border-bottom:3px solid #87714c}
-  .battle-painted .battle-arena.bandit{background-color:#b8a47a;background-image:url('assets/battle-village.png'),url('assets/world-town.png');background-position:center 12%}
+  .battle-painted .battle-arena{height:326px!important;position:relative;overflow:hidden;isolation:isolate;background-color:#818b61;background-image:url('assets/battle-forest.webp'),url('assets/world-forest.webp');background-repeat:no-repeat;background-size:cover;background-position:center 12%;border-bottom:3px solid #87714c}
+  .battle-painted .battle-arena.bandit{background-color:#b8a47a;background-image:url('assets/battle-village.webp'),url('assets/world-town.webp');background-position:center 12%}
   .battle-painted .battle-arena:before,.battle-painted .battle-arena:after{content:none!important}
   .battle-painted .battle-turns{position:absolute;left:15px;top:14px;display:flex;align-items:center;gap:7px;z-index:3;font-size:10px;color:#f5edcf;text-shadow:0 1px 2px #2c3228}
   .battle-painted .battle-turns span{display:flex;align-items:center;justify-content:center;gap:4px;min-width:32px;height:26px;border:1px solid #e6d7a63b;background:#3c4035b5;border-radius:2px;padding:0 7px}
@@ -104,7 +104,7 @@
   .battle-painted .battle-learned-skills .battle-action{min-height:47px!important;background:#e5e4cd;border-color:#9c9c76}
   .battle-painted .battle-new-art{font-size:8px;margin-left:6px;padding:1px 3px;border:1px solid #aaa17a;color:#8a7755;font-weight:400}
   .battle-painted .battle-level{font:9px sans-serif;color:#9b865f;margin-left:4px;font-style:normal}
-  .battle-painted .battle-arena.haunted{background-image:linear-gradient(#182d4699,#263a4f66),url('assets/battle-forest.png');background-color:#293e42}
+  .battle-painted .battle-arena.haunted{background-image:linear-gradient(#182d4699,#263a4f66),url('assets/battle-forest.webp');background-color:#293e42}
   .battle-painted .battle-enemy.wisp{width:126px;height:136px!important;bottom:55px!important;right:16%}
   .battle-painted .battle-enemy.wisp:not(.striking):not(.hit):not(.dead){animation:painted-wisp-drift 2.8s ease-in-out infinite;filter:drop-shadow(0 0 11px #97e7ee80)}
   .battle-painted .battle-intent.ghost{color:#c9eeed;background:#2c4b5fdb;border-color:#85bbbd}
@@ -119,9 +119,9 @@
   const ART = Object.create(null);
   const ART_PROMISES = Object.create(null);
   const ATLAS = {
-    people:{src:'assets/world-people.png',cols:4,rows:3},
-    enemies:{src:'assets/world-enemies.png',cols:4,rows:2},
-    wisp:{src:'assets/world-wisp.png',cols:1,rows:1}
+    people:{src:'assets/world-people.webp',cols:4,rows:3},
+    enemies:{src:'assets/world-enemies.webp',cols:4,rows:2},
+    wisp:{src:'assets/world-wisp.webp',cols:1,rows:1}
   };
   const ENEMY_CELL = {rabbit:0,snake:1,wild:2,banditSmall:3,boar:4,bandit:5};
   function loadAtlas(key){

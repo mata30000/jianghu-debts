@@ -1,35 +1,35 @@
 /* The complete single-player chapter is kept on this device only after every file verifies. */
 'use strict';
-const EDITION='v7-20261109-fdda7fd0f8e2',CACHE='jianghu-single-player-'+EDITION;
+const EDITION='v8-20261109-8997e4e18023',CACHE='jianghu-single-player-'+EDITION;
 const FILES=[
  "index.html",
- "game-v7-0d43539f6126.css",
+ "game-v8-e2cfe0c324b2.css",
  "manifest.webmanifest",
- "app-v7-e6225b0c1180.js",
+ "app-v8-358925154c4d.js",
  "assets/a.svg",
  "assets/app-icon.png",
  "assets/app-icon.svg",
  "assets/b.svg",
- "assets/battle-forest.png",
- "assets/battle-village.png",
- "assets/portrait-a.png",
- "assets/portrait-b.png",
- "assets/portraits.png",
- "assets/walk-a.png",
- "assets/walk-b.png",
- "assets/world-enemies.png",
- "assets/world-forest.png",
- "assets/world-forestcave.png",
- "assets/world-herb.png",
- "assets/world-heyang.png",
- "assets/world-hilltrail.png",
- "assets/world-interiors.png",
- "assets/world-outskirts.png",
- "assets/world-people.png",
- "assets/world-riverwoods.png",
- "assets/world-temple.png",
- "assets/world-town.png",
- "assets/world-wisp.png"
+ "assets/battle-forest.webp",
+ "assets/battle-village.webp",
+ "assets/portrait-a.webp",
+ "assets/portrait-b.webp",
+ "assets/portraits.webp",
+ "assets/walk-a.webp",
+ "assets/walk-b.webp",
+ "assets/world-enemies.webp",
+ "assets/world-forest.webp",
+ "assets/world-forestcave.webp",
+ "assets/world-herb.webp",
+ "assets/world-heyang.webp",
+ "assets/world-hilltrail.webp",
+ "assets/world-interiors.webp",
+ "assets/world-outskirts.webp",
+ "assets/world-people.webp",
+ "assets/world-riverwoods.webp",
+ "assets/world-temple.webp",
+ "assets/world-town.webp",
+ "assets/world-wisp.webp"
 ];
 const ROOT=new URL('./',self.location.href),URLS=FILES.map(path=>new URL(path,ROOT).href),ALLOWED=new Set(URLS);
 const LEGACY_FILES=['style.css','mobile.css','offline.css','compat.js','story.js','story-triggers.js','encounters.js','exploration-layouts.js','progression.js','adventure-content.js','map.js','combat.js','game.js','offline.js'];
@@ -54,7 +54,7 @@ async function valid(response,url){
   if(finalURL.origin!==ROOT.origin||![ROOT.pathname,indexURL.pathname].includes(finalURL.pathname))return false;
  }
  const type=(response.headers.get('content-type')||'').toLowerCase(),path=requested.pathname;
- if(/\.(png|svg)$/.test(path))return type.startsWith('image/');
+ if(/\.(png|webp|svg)$/.test(path))return type.startsWith('image/');
  if(path.endsWith('index.html')){if(!type.includes('text/html'))return false;const text=await response.clone().text();return text.includes('id="world"')&&text.includes('game.js');}
  if(path.endsWith('.js')){if(!/javascript|ecmascript|text\/plain/.test(type))return false;const text=await response.clone().text();return text.trim().length>10&&!/^\s*(?:<!doctype|<html)/i.test(text);}
  if(path.endsWith('.css'))return type.includes('text/css');
@@ -82,13 +82,24 @@ function fetchBound(request,ms,consume=response=>response){
  const network=Promise.resolve().then(()=>fetch(request,controller?{signal:controller.signal}:undefined)).then(consume);
  return Promise.race([network,deadline]).finally(()=>clearTimeout(timer));
 }
-async function status(){
+function keepInBackground(event,cache,key,response){
+ // Display the received image immediately. CacheStorage can be slow or full on
+ // iPhone and must never hold an otherwise successful map/sprite request open.
+ let timer;const deadline=new Promise(resolve=>{timer=setTimeout(resolve,10000);});
+ const write=Promise.resolve().then(()=>cache.put(key,response)).catch(()=>{});
+ event.waitUntil(Promise.race([write,deadline]).finally(()=>clearTimeout(timer)));
+}
+function storageBound(operation,ms=1200){
+ let timer;const deadline=new Promise((resolve,reject)=>{timer=setTimeout(()=>{const error=new Error('Offline storage is unavailable');error.name='StorageUnavailableError';reject(error);},ms);});
+ return Promise.race([operation,deadline]).catch(error=>{if(error?.name==='QuotaExceededError')throw error;const unavailable=new Error('Offline storage is unavailable');unavailable.name='StorageUnavailableError';throw unavailable;}).finally(()=>clearTimeout(timer));
+}
+async function status(){return storageBound((async()=>{
  const cache=await caches.open(CACHE),present=await Promise.all(URLS.map(async url=>!!await cache.match(url))),done=present.filter(Boolean).length;
  const ready=done===FILES.length&&await currentDocument(await cache.match(new URL('index.html',ROOT).href))&&await documentDependenciesCached(cache);
  return{version:EDITION,total:FILES.length,done,ready,downloading:!!downloadPromise};
-}
+})(),2000);}
 async function previousComplete(){
- if(!previousCompletePromise)previousCompletePromise=(async()=>{
+ if(!previousCompletePromise)previousCompletePromise=storageBound((async()=>{
   const names=(await caches.keys()).filter(name=>name.startsWith('jianghu-single-player-')&&name!==CACHE).reverse();
   for(const name of names){
    const cache=await caches.open(name),marker=await cache.match(MARKER);if(!marker)continue;
@@ -97,13 +108,13 @@ async function previousComplete(){
    }catch{}
   }
   return null;
- })();
+ })()).catch(()=>null);
  return previousCompletePromise;
 }
 function post(data){for(const port of listeners){try{port.postMessage(data);}catch{listeners.delete(port);}}}
-function explain(error){return error?.name==='QuotaExceededError'?'设备空间不足，请先导出存档，腾出空间后重试。':'尚有文件没有下载成功。保持联网后点重试，已经下载的内容会保留。';}
+function explain(error){return error?.name==='QuotaExceededError'?'设备空间不足，请先导出存档，腾出空间后重试。':error?.name==='StorageUnavailableError'?'当前浏览器暂时无法使用离线空间，仍可联网游玩。':'尚有文件没有下载成功。保持联网后点重试，已经下载的内容会保留。';}
 async function download(){
- const cache=await caches.open(CACHE),failed=[];let cursor=0;
+ const cache=await storageBound(caches.open(CACHE),2000),failed=[];let cursor=0;
  const initial=await status();post({kind:'progress',...initial,downloading:true});
  async function worker(){
   while(cursor<URLS.length){const index=cursor++,url=URLS[index],path=FILES[index];
@@ -142,7 +153,9 @@ self.addEventListener('fetch',event=>{
  const request=event.request;if(request.method!=='GET')return;
  const key=urlOf(request);if(!key)return;
  event.respondWith((async()=>{
-  const cache=await caches.open(CACHE),cached=await cache.match(key),navigation=request.mode==='navigate'||key===new URL('index.html',ROOT).href;
+  const navigation=request.mode==='navigate'||key===new URL('index.html',ROOT).href;let cache,cached;
+  try{cache=await storageBound(caches.open(CACHE));cached=await storageBound(cache.match(key));}
+  catch{return fetchBound(request,navigation?20000:40000);}
   const clientId=event.resultingClientId||event.clientId,selected=clientEditions.get(event.clientId);
   // An interrupted update must start the previous complete chapter as a whole.
   if(!navigation&&selected&&selected!==CACHE){const old=await(await caches.open(selected)).match(key);if(old)return old;}
@@ -160,7 +173,7 @@ self.addEventListener('fetch',event=>{
    const timeout=navigation?(cached||await previousComplete()?3500:20000):40000;
    const result=await fetchBound(request,timeout,async response=>{
     if(!await valid(response,key))return{response,accepted:false};
-    const sameEdition=!navigation||await currentDocument(response);if(sameEdition)await cache.put(key,response.clone());
+    const sameEdition=!navigation||await currentDocument(response);if(sameEdition)keepInBackground(event,cache,key,response.clone());
     return{response,accepted:true,sameEdition};
    });
    if(result.accepted){if(navigation&&clientId){if(result.sameEdition)clientEditions.set(clientId,CACHE);else clientEditions.delete(clientId);}return result.response;}
